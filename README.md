@@ -10,7 +10,7 @@
 
 连续粘贴填充不中断，窗口始终停留在桌面。
 
-[![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue)](https://github.com/797loy/clipbuddy)
+[![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue)](https://github.com/797loy/clipbuddy-windows)
 [![Python](https://img.shields.io/badge/Python-3.9%E2%80%933.13-3776AB?logo=python&logoColor=white)](https://www.python.org)
 [![UI](https://img.shields.io/badge/UI-pywebview%20%2B%20WebView2-6f4dff)](https://pywebview.flowrl.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
