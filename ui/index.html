@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>剪贴宝</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+
+<main class="shell" id="shell">
+  <header class="topbar">
+    <div class="brand pywebview-drag-region">
+      <span class="logo pywebview-drag-region">📋</span>
+      <span class="name pywebview-drag-region">剪贴宝</span>
+    </div>
+    <div class="grow pywebview-drag-region"></div>
+    <button class="pill" id="themeBtn" title="主题"><span id="themeIcon">🌓</span><i class="caret"></i></button>
+    <button class="pill" id="petBtn" title="宠物图标"><span id="petIcon">🐱</span><i class="caret"></i></button>
+    <button class="icon-btn" id="gearBtn" title="设置" aria-label="设置">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg>
+    </button>
+    <button class="icon-btn close" id="closeBtn" title="关闭 (Esc)" aria-label="关闭">
+      <svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>
+    </button>
+  </header>
+
+  <div class="tools">
+    <div class="seg" id="tabs">
+      <i class="thumb"></i>
+      <button data-tab="history" class="on">剪贴板 <em id="cntH">0</em></button>
+      <button data-tab="fav">常用语 <em id="cntF">0</em></button>
+    </div>
+    <label class="search">
+      <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>
+      <input id="q" type="text" placeholder="搜索" autocomplete="off" spellcheck="false">
+    </label>
+  </div>
+
+  <section class="list" id="list"></section>
+
+  <footer class="foot">
+    <span class="hint" id="hint">点击文字即可粘贴 · 点 ⋯ 更多操作</span>
+    <button class="link" id="footBtn">清空历史</button>
+  </footer>
+</main>
+
+<div id="scrim"></div>
+<div id="menu" class="menu" role="menu"></div>
+
+<aside id="sheet" class="sheet" aria-hidden="true">
+  <div class="sheet-head"><b>设置</b><button class="icon-btn" id="sheetClose" aria-label="完成"><svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</aside>
+
+<aside id="composer" class="sheet composer" aria-hidden="true">
+  <div class="sheet-head"><b>新建常用语</b></div>
+  <textarea id="phraseInput" placeholder="输入常用的文字，比如地址、邮箱、固定回复…" spellcheck="false"></textarea>
+  <div class="row-end">
+    <button class="btn" id="phraseCancel">取消</button>
+    <button class="btn primary" id="phraseSave">保存</button>
+  </div>
+</aside>
+
+<div id="toast" class="toast"><span id="toastMsg"></span><button id="toastAct"></button></div>
+
+<script src="app.js"></script>
+</body>
+</html>
