@@ -11,6 +11,7 @@ import threading
 import time
 
 APP_TITLE = "剪贴宝 ClipBuddy"
+APP_VERSION = "1.1.0"
 WIDTH, HEIGHT = 460, 620
 
 
@@ -230,6 +231,37 @@ class Controller:
         self._notify(f"已清空 {n} 条历史")
 
     # ───────── 粘贴 ─────────
+    def _deliver_paste(self, prev):
+        """把已写入剪贴板的内容粘贴到目标窗口 prev，尽量保证焦点确实切过去再发 Ctrl+V。
+
+        面板显示时：先让出置顶，避免面板盖住目标窗口抢焦点；粘贴完成后再恢复置顶并拉回前台。
+        若多次尝试仍无法让目标窗口拿到焦点（如目标为管理员权限程序），不发送按键，
+        改为提示手动 Ctrl+V，避免误粘到面板自身。
+        """
+        w = self._w
+        if self._visible:
+            w.set_topmost(self._hwnd, False)   # 面板先让出置顶
+        try:
+            focused = False
+            for _ in range(4):
+                w.force_foreground(prev, retries=3)
+                time.sleep(0.10)
+                for _ in range(12):            # 最多再等约 0.36s 让焦点真正落到目标窗口
+                    if w.foreground() == prev:
+                        focused = True
+                        break
+                    time.sleep(0.03)
+                if focused:
+                    break
+            if focused:
+                w.send_ctrl_v()
+            else:
+                self._js("window.toast && window.toast('未能自动粘贴，内容已复制，请手动 Ctrl+V')")
+        finally:
+            if self._visible:
+                w.set_topmost(self._hwnd, True)
+                w.force_foreground(self._hwnd)
+
     def _do_paste(self, text, source):
         w = self._w
         if not self._write_clipboard(text):
@@ -243,12 +275,7 @@ class Controller:
             self._hide(restore=True)
             if not prev:
                 return
-            time.sleep(0.12)
-            for _ in range(15):
-                if w.foreground() == prev:
-                    break
-                time.sleep(0.03)
-            w.send_ctrl_v()
+            self._deliver_paste(prev)
             return
 
         # 面板保持显示（连续粘贴填充）：临时把焦点交给目标窗口完成粘贴，再把面板拉回前台
@@ -256,14 +283,9 @@ class Controller:
             self._pasting = True
         try:
             if prev and w.is_window(prev):
-                w.force_foreground(prev)
-                time.sleep(0.12)
-                for _ in range(15):
-                    if w.foreground() == prev:
-                        break
-                    time.sleep(0.03)
-                w.send_ctrl_v()
-            w.force_foreground(self._hwnd)   # 先把面板拉回前台，再解除粘贴守卫
+                self._deliver_paste(prev)
+            else:
+                w.force_foreground(self._hwnd)   # 没有目标窗口（托盘打开）：只复制，面板保持在前
         finally:
             with self._lock:
                 self._pasting = False
@@ -273,7 +295,7 @@ class Controller:
         from core import autostart
         state = self._store.snapshot()
         state["settings"]["autostart"] = autostart.is_enabled()
-        state["env"] = {"hotkeys": self._config["hotkeys"]}
+        state["env"] = {"hotkeys": self._config["hotkeys"], "version": APP_VERSION}
         return state
 
     def paste(self, source, item_id):

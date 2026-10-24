@@ -314,22 +314,36 @@ def is_window(hwnd):
     return bool(hwnd) and bool(user32.IsWindow(hwnd))
 
 
-def force_foreground(hwnd):
-    """尽力把 hwnd 切到前台（借助 AttachThreadInput 绕过前台锁）。"""
+def force_foreground(hwnd, retries=3):
+    """尽力把 hwnd 切到前台（借助 AttachThreadInput 绕过前台锁），失败则重试。
+
+    同时绑定当前前台线程与目标线程的输入队列，比只绑前台线程更可靠；
+    重试若干次以提高命中率（Windows 前台切换受系统限制，未必一次成功）。
+    """
     if not is_window(hwnd):
         return False
-    fg = user32.GetForegroundWindow()
-    if fg == hwnd:
-        return True
     cur = kernel32.GetCurrentThreadId()
-    fg_tid = user32.GetWindowThreadProcessId(fg, None) if fg else 0
-    attached = bool(fg_tid and fg_tid != cur and user32.AttachThreadInput(cur, fg_tid, True))
-    try:
-        user32.BringWindowToTop(hwnd)
-        return bool(user32.SetForegroundWindow(hwnd))
-    finally:
-        if attached:
-            user32.AttachThreadInput(cur, fg_tid, False)
+    for _ in range(max(1, retries)):
+        fg = user32.GetForegroundWindow()
+        if fg == hwnd:
+            return True
+        fg_tid = user32.GetWindowThreadProcessId(fg, None) if fg else 0
+        tgt_tid = user32.GetWindowThreadProcessId(hwnd, None)
+        attached = []
+        if fg_tid and fg_tid != cur and user32.AttachThreadInput(cur, fg_tid, True):
+            attached.append(fg_tid)
+        if tgt_tid and tgt_tid != cur and user32.AttachThreadInput(cur, tgt_tid, True):
+            attached.append(tgt_tid)
+        try:
+            user32.BringWindowToTop(hwnd)
+            user32.SetForegroundWindow(hwnd)
+            if user32.GetForegroundWindow() == hwnd:
+                return True
+        finally:
+            for tid in attached:
+                user32.AttachThreadInput(cur, tid, False)
+        time.sleep(0.02)
+    return False
 
 
 def window_size(hwnd):
@@ -343,6 +357,16 @@ def move_window(hwnd, x, y, topmost=True):
     if not topmost:
         flags |= SWP_NOZORDER
     user32.SetWindowPos(hwnd, HWND_TOPMOST if topmost else None, int(x), int(y), 0, 0, flags)
+
+
+def set_topmost(hwnd, on):
+    """置顶 / 取消置顶，不改变位置与大小。"""
+    if not is_window(hwnd):
+        return False
+    flags = SWP_NOMOVE | SWP_NOSIZE
+    if not on:
+        flags |= SWP_NOZORDER
+    return bool(user32.SetWindowPos(hwnd, HWND_TOPMOST if on else None, 0, 0, 0, 0, flags))
 
 
 def cursor_pos():

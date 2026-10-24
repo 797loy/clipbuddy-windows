@@ -116,6 +116,26 @@ input, textarea { font: inherit; color: inherit; user-select: text; -webkit-user
 .search input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; }
 .search input::placeholder { color: var(--text3); }
 
+/* 分类筛选栏 */
+.cats { display: flex; gap: 6px; flex: none; overflow-x: auto; scrollbar-width: none; padding-bottom: 1px; }
+.cats::-webkit-scrollbar { display: none; }
+.cats button {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 11px;
+  border-radius: 13px; background: var(--glass); box-shadow: inset 0 0 0 1px var(--stroke);
+  backdrop-filter: blur(18px) saturate(1.6); font-size: 12.5px; font-weight: 600; color: var(--text2);
+  transition: background .18s, color .18s, box-shadow .18s;
+}
+.cats button:hover { background: var(--card-hover); color: var(--text); }
+.cats button.on { background: var(--glass-strong); color: var(--text); box-shadow: inset 0 0 0 1.5px var(--accent), 0 2px 8px rgba(0,0,0,.08); }
+.cats .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.cats .dot.all { background: var(--text3); }
+.cats .dot.text { background: var(--chip-text); }
+.cats .dot.link { background: var(--chip-link); }
+.cats .dot.mail { background: var(--chip-mail); }
+.cats .dot.phone { background: var(--chip-num); }
+.cats .dot.num { background: var(--chip-num); }
+.cats .dot.code { background: var(--chip-code); }
+
 /* 列表与卡片 */
 .list { flex: 1; overflow-y: auto; margin: 0 -6px; padding: 2px 6px 4px; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; }
 .list::-webkit-scrollbar { width: 6px; }

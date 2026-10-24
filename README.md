@@ -13,6 +13,8 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue)](https://github.com/797loy/clipbuddy-windows)
 [![Python](https://img.shields.io/badge/Python-3.9%E2%80%933.13-3776AB?logo=python&logoColor=white)](https://www.python.org)
 [![UI](https://img.shields.io/badge/UI-pywebview%20%2B%20WebView2-6f4dff)](https://pywebview.flowrl.com)
+[![Version](https://img.shields.io/badge/version-v1.1.0-6f4dff)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/Release-v1.1.0-orange)](https://github.com/797loy/clipbuddy-windows/releases)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
@@ -22,8 +24,9 @@
 ## ✨ 功能特色
 
 - **自动记录**：复制过的文字自动入历史，相同内容去重，默认保留 20 条（可设 10 / 20 / 50 / 100），重启不丢。
-- **点击即粘贴**：点卡片（或 `↑↓ + Enter`、`Ctrl+1…9`），内容自动粘贴到你复制前所在窗口的光标处。
+- **点击即粘贴**：点卡片（或 `↑↓ + Enter`、`Ctrl+1…9`），内容**自动粘贴**到你复制前所在窗口的光标处——无需手动 Ctrl+V。
 - **🔁 连续粘贴填充**：粘贴后**面板不隐藏**，窗口始终停在桌面——在表格、表单里连续点击即可逐条填充，不用反复呼出。
+- **🏷️ 分类筛选**：顶部分类栏可按「文本 / 链接 / 邮箱 / 手机号 / 数字 / 代码」筛选查看，配合搜索更高效。
 - **常用语**：跨会话保留，可在面板里直接新建，右键卡片即可加入 / 移出。
 - **智能识别**：自动标注类型标签 —— 链接 / 邮箱 / 手机号 / 数字 / 代码 / 文本。
 - **快速搜索**：按关键词过滤历史与常用语。
@@ -42,6 +45,14 @@
 ## 🚀 安装
 
 > 需要 **Windows 10 / 11** 和 **Python 3.9 – 3.13**（Win10/11 已自带 WebView2 运行时）。
+
+### 📦 获取代码（怎么下载）
+
+- **下载 ZIP（最简单）**：打开仓库主页 → 右上角绿色 **Code** 按钮 → **Download ZIP**，解压到任意目录即可。
+- **克隆仓库**：`git clone https://github.com/797loy/clipbuddy-windows.git`
+- **预编译 exe**：到右侧 **Releases** 页面下载 `ClipBuddy.exe`，双击即可运行（无需装 Python）——最方便，适合普通用户。
+
+拿到代码后，按下面任一方式启动：
 
 ### 方法一：一键安装（推荐）
 
@@ -151,6 +162,13 @@ UI 调试：直接用浏览器打开 `ui/index.html` 会进入带演示数据的
 - **快捷键无效**：可能被其他软件占用。查看 `clipbuddy.log` 里的「热键注册失败」，在 `config.json` 里换一个。
 - **看不到面板**：看任务栏托盘图标，右键可打开 / 退出；或再次双击桌面快捷方式。
 - **只记录文字**：图片、文件等暂不记录。
+
+## 📑 更新日志
+
+完整版本记录见 [CHANGELOG.md](CHANGELOG.md)。
+
+- **v1.1.0**：新增分类筛选栏、连续粘贴填充；优化自动粘贴可靠性；标注版本号。
+- **v1.0.0**：初始版本 —— 剪贴板历史 / 常用语 / 搜索 / 主题等基础功能。
 
 ## 📄 License
 

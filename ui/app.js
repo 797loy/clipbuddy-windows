@@ -9,7 +9,7 @@ const THEMES = { auto: ['🌓', '跟随系统'], light: ['☀️', '浅色'], da
 const ICON_MORE = '<svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg>';
 
 let S = { history: [], favorites: [], settings: { theme: 'auto', pet: 'cat', max_items: 20, position: 'cursor', auto_hide: true, autostart: false }, env: { hotkeys: { toggle: [], clear: [] } } };
-let tab = 'history', query = '', sel = 0, kbd = false, view = [];
+let tab = 'history', query = '', sel = 0, kbd = false, view = [], cat = '全部';
 let api = null;
 
 /* ───────── 后端调用 ───────── */
@@ -67,9 +67,13 @@ function el(tag, cls, text) {
 function render() {
   const src = tab === 'history' ? S.history : S.favorites;
   const q = query.trim().toLowerCase();
-  view = src.filter((it) => !q || it.text.toLowerCase().includes(q));
+  view = src.filter((it) =>
+    (cat === '全部' || typeOf(it.text)[0] === cat) &&
+    (!q || it.text.toLowerCase().includes(q))
+  );
   if (sel >= view.length) sel = view.length - 1;
   if (sel < 0) sel = 0;
+  renderCats();
 
   $('#cntH').textContent = S.history.length;
   $('#cntF').textContent = S.favorites.length;
@@ -83,6 +87,7 @@ function render() {
   if (!view.length) {
     const e = el('div', 'empty');
     const msg = q ? ['🔍', '没有找到匹配的内容', '换个关键词试试'] :
+      cat !== '全部' ? ['🏷️', '该分类下没有内容', '切换到「全部」查看'] :
       tab === 'history' ? ['✂️', '还没有复制记录', '复制一段文字，它就会出现在这里'] :
         ['⭐', '还没有常用语', '在卡片的 ⋯ 菜单里加入，或点右下角新建'];
     e.append(el('div', 'big', msg[0]));
@@ -93,6 +98,13 @@ function render() {
   view.forEach((it, i) => frag.append(card(it, i)));
   list.replaceChildren(frag);
 }
+
+function renderCats() {
+  document.querySelectorAll('#cats button').forEach((b) => b.classList.toggle('on', b.dataset.cat === cat));
+}
+document.querySelectorAll('#cats button').forEach((b) => b.addEventListener('click', () => {
+  cat = b.dataset.cat; sel = 0; kbd = false; render(); $('#list').scrollTop = 0;
+}));
 
 function card(it, i) {
   const c = el('div', 'card' + ((kbd || query) && i === sel ? ' sel' : ''));
@@ -231,7 +243,8 @@ function buildSheet() {
   const note = el('div', 'srow note');
   note.append(document.createTextNode('呼出 / 隐藏：' + fmt(hk.toggle || [])), document.createElement('br'),
     document.createTextNode('清空历史：' + fmt(hk.clear || [])), document.createElement('br'),
-    document.createTextNode('↑↓ 选择，Enter 粘贴，Ctrl+1…9 快速粘贴，Esc 关闭'));
+    document.createTextNode('↑↓ 选择，Enter 粘贴，Ctrl+1…9 快速粘贴，Esc 关闭'), document.createElement('br'),
+    document.createTextNode('剪贴宝 v' + ((S.env && S.env.version) || '1.1.0')));
   const quit = el('div', 'srow');
   const qb = el('button', 'btn danger', '退出程序');
   qb.addEventListener('click', () => call('quit_app'));
@@ -318,7 +331,7 @@ window.onShow = async () => {
   const shell = $('#shell');
   shell.classList.remove('enter'); void shell.offsetWidth; shell.classList.add('enter');
   closeMenu(); closeSheet(); closeComposer(); hideToast();
-  query = ''; $('#q').value = ''; sel = 0; kbd = false;
+  query = ''; $('#q').value = ''; sel = 0; kbd = false; cat = '全部';
   await refresh();
   $('#list').scrollTop = 0;
   $('#q').focus();
