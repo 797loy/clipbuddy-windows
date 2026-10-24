@@ -11,7 +11,7 @@ import threading
 import time
 
 APP_TITLE = "剪贴宝 ClipBuddy"
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.1.1"
 WIDTH, HEIGHT = 460, 620
 
 
@@ -98,7 +98,7 @@ class Controller:
             if not self._hwnd or self._visible:
                 return
             fg = w.foreground()
-            self._prev = None if (from_tray or fg == self._hwnd) else fg
+            self._prev = None if fg == self._hwnd else fg
             self._place()
             self._window.show()
             self._visible = True
@@ -255,7 +255,10 @@ class Controller:
                     break
             if focused:
                 w.send_ctrl_v()
+                self._log.info("deliver: 已向目标 %s 发送 Ctrl+V", prev)
             else:
+                self._log.warning("deliver: 焦点未切到目标 %s（当前前台 %s），提示手动粘贴",
+                                  prev, w.foreground())
                 self._js("window.toast && window.toast('未能自动粘贴，内容已复制，请手动 Ctrl+V')")
         finally:
             if self._visible:
@@ -270,25 +273,40 @@ class Controller:
         if source == "history":
             self._store.touch(text)
         prev = self._prev
+        self._log.info("paste: 请求粘贴 %r（来源=%s）目标=%s 面板显示=%s", text[:24], source, prev, self._visible)
         if not self._visible:
-            # 面板已隐藏（托盘/快捷键收起）：保持原逻辑，粘贴后不把面板重新拉出来
+            # 面板已隐藏（托盘/快捷键收起）：粘贴后不把面板重新拉出来
             self._hide(restore=True)
-            if not prev:
-                return
-            self._deliver_paste(prev)
+            if prev and w.is_window(prev):
+                self._deliver_paste(prev)
             return
 
-        # 面板保持显示（连续粘贴填充）：临时把焦点交给目标窗口完成粘贴，再把面板拉回前台
+        # 面板显示：隐藏面板让置顶的 WebView2 不再抢占键盘，然后主动用 _prev
+        # (打开面板时的前台窗口=用户目标) 把焦点切回目标，等其编辑框获得焦点后发
+        # Ctrl+V。完成后立即弹回面板，兼顾「每次点击都能粘」与「连续粘贴填充」。
         with self._lock:
             self._pasting = True
         try:
-            if prev and w.is_window(prev):
-                self._deliver_paste(prev)
+            self._window.hide()               # 隐藏面板
+            with self._lock:
+                self._visible = False
+            # 主动聚焦用户目标(_prev=打开面板时的前台窗口)，避免自然归位落到错误窗口
+            target = prev if (prev and w.is_window(prev) and prev != self._hwnd) else None
+            if target:
+                w.force_foreground(target, retries=6)
+            time.sleep(0.3)                   # 等目标窗口编辑框真正获得焦点
+            fg = w.foreground()
+            if fg and fg != self._hwnd:
+                w.send_ctrl_v()               # 发给当前前台=目标窗口
+                self._log.info("deliver: 已向 %s 发送 Ctrl+V", fg)
             else:
-                w.force_foreground(self._hwnd)   # 没有目标窗口（托盘打开）：只复制，面板保持在前
+                self._log.warning("deliver: 无有效前台窗口，内容已复制")
+                self._js("window.toast && window.toast('内容已复制，请手动 Ctrl+V')")
         finally:
             with self._lock:
                 self._pasting = False
+            if not self._visible:             # 粘贴完成，立即把面板重新显示出来
+                self.show()
 
     # ═════════ 以下为前端可调用的 API ═════════
     def get_state(self):

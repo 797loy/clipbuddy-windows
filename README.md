@@ -13,8 +13,8 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue)](https://github.com/797loy/clipbuddy-windows)
 [![Python](https://img.shields.io/badge/Python-3.9%E2%80%933.13-3776AB?logo=python&logoColor=white)](https://www.python.org)
 [![UI](https://img.shields.io/badge/UI-pywebview%20%2B%20WebView2-6f4dff)](https://pywebview.flowrl.com)
-[![Version](https://img.shields.io/badge/version-v1.1.0-6f4dff)](CHANGELOG.md)
-[![Release](https://img.shields.io/badge/Release-v1.1.0-orange)](https://github.com/797loy/clipbuddy-windows/releases)
+[![Version](https://img.shields.io/badge/version-v1.1.1-6f4dff)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/Release-v1.1.1-orange)](https://github.com/797loy/clipbuddy-windows/releases)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 </div>
@@ -167,6 +167,7 @@ UI 调试：直接用浏览器打开 `ui/index.html` 会进入带演示数据的
 
 完整版本记录见 [CHANGELOG.md](CHANGELOG.md)。
 
+- **v1.1.1**：根治「点击卡片不能直接粘贴」——隐藏面板释放键盘 → 主动聚焦目标窗口 → 待其就绪后自动 Ctrl+V，粘贴后立即弹回继续连续填充。
 - **v1.1.0**：新增分类筛选栏、连续粘贴填充；优化自动粘贴可靠性；标注版本号。
 - **v1.0.0**：初始版本 —— 剪贴板历史 / 常用语 / 搜索 / 主题等基础功能。
 
